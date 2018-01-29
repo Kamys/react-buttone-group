@@ -24,7 +24,7 @@ class ButtonGroup extends React.Component {
                 <div key={data.key} className="col-sm-12 col-md-6 col-lg-4 ">
                     <button type="button"
                             onClick={this.props.onclick.bind(this, data.key)}
-                            className="btn btn-shadow btn-primary btn-lg btn-block active mt-2">{data.name}</button>
+                            className="btn btn-primary btn-lg btn-block active mt-2">{data.name}</button>
                 </div>
             );
         })

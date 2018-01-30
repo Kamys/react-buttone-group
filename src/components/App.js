@@ -44,12 +44,29 @@ export default class App extends Component {
 		];
 	}
 
+	getCourse() {
+		return [
+			{name: "Курс 1", key: 1},
+			{name: "Курс 2", key: 2},
+			{name: "Курс 3", key: 3}
+		];
+	}
+
 	selectSpeciality = (id) => {
 		this.props.history.push({
-			pathname: 'speciality',
+			pathname: '/speciality',
 			search: '?id='+id
 		})
 	};
+
+	selectCourse = (id) => {
+		this.props.history.push({
+			pathname: '/course',
+			search: '?id='+id
+		})
+	};
+
+
 
 	render() {
 
@@ -63,11 +80,14 @@ export default class App extends Component {
 		return (
 			<div>
 				<Route exact path="/"
-					   render={(props) => (<ButtonGroup data={this.getFaculty()}
+					   render={(props) => (<ButtonGroup name='Факульты' data={this.getFaculty()}
 														onclick={this.selectSpeciality}/>)}/>
 				<Route exact path="/speciality"
-					   render={(props) => (<ButtonGroup data={this.getSpeciality()}
-														onclick={this.selectSpeciality}/>)}/>
+					   render={(props) => (<ButtonGroup name='Специальности' data={this.getSpeciality()}
+														onclick={this.selectCourse}/>)}/>
+				<Route exact path="/course"
+					   render={(props) => (<ButtonGroup name='Курс' data={this.getCourse()}
+														onclick={this.selectCourse}/>)}/>
 			</div>
 		);
 	}

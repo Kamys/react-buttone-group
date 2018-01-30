@@ -7,7 +7,7 @@ class ButtonGroup extends React.Component {
             <div className="container">
                 <div className="row">
                     <div className="col-1">`
-                        <h1>ButtonGroup</h1>
+                        <h1>{this.props.name}</h1>
                     </div>
                 </div>
                 <div className="row">

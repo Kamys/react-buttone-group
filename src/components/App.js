@@ -5,67 +5,36 @@ import {
 	Redirect
 } from 'react-router-dom'
 
+let TypeSelectDataEnum = Object.freeze({
+	"Faculty": 1,
+	"Specialty": 2,
+	"Courses": 3,
+	"Group": 4,
+	"GroupLesson": 5,
+});
 
 export default class App extends Component {
 	state = {
 		redirectToReferrer: false,
-		referrer: '/'
+		referrer: '/',
+		currentSelect: TypeSelectDataEnum.Faculty
 	};
 
-	getFaculty() {
-		return [
-			{name: "Второго высшего образования и магистерской подготовки", key: 10004},
-			{name: "Заочного обучения", key: 9},
-			{name: "Общественного питания и товароведения", key: 10},
-			{name: "Отдел аспирантуры", key: 12},
-			{name: "Подготовительный факультет", key: 14},
-			{name: "СПО - заочная форма", key: 10045},
-			{name: "Среднего профессионального образования", key: 1},
-			{name: "Среднего профессионального образования №1", key: 10083},
-			{name: "Среднего профессионального образования №2", key: 10084},
-			{name: "Таможенного дела и информационных технологий", key: 7},
-			{name: "Учебно-методический центр", key: 10046},
-			{name: "Учебно-методический центр повышения квалификации и переподготовки кадров", key: 15},
-			{name: "Экономики и менеджмента", key: 11},
-			{name: "Юридический", key: 8}];
-	}
 
-	getSpeciality() {
-		const queryParams = new URLSearchParams(this.props.location.search);
-		let id = queryParams.get('id');
-		console.log('getSpeciality id = ' + id);
-		return [
-			{name: "Информационные системы (по отраслям)", key: 1370},
-			{name: "Организация и технология защиты информации", key: 1411},
-			{name: "Право и организация социального обеспечения", key: 1394},
-			{name: "Прикладная информатика (по отраслям)", key: 1363},
-			{name: "Технология продукции общественного питания", key: 1423},
-			{name: "Товароведение и экспертиза качества потребительских товаров", key: 1434}
-		];
-	}
-
-	getCourse() {
-		return [
-			{name: "Курс 1", key: 1},
-			{name: "Курс 2", key: 2},
-			{name: "Курс 3", key: 3}
-		];
-	}
 
 	selectSpeciality = (id) => {
 		this.props.history.push({
 			pathname: '/speciality',
-			search: '?id='+id
+			search: '?id=' + id
 		})
 	};
 
 	selectCourse = (id) => {
 		this.props.history.push({
 			pathname: '/course',
-			search: '?id='+id
+			search: '?id=' + id
 		})
 	};
-
 
 
 	render() {

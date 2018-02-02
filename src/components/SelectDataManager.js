@@ -8,29 +8,45 @@ import ButtonGroup from "./ButtonGroup";
 export default class SelectDataManager extends Component {
 	/**
 	 * Data types which can display.
-	 * @type {{faculty: string, specialty: string, course: string, group: string, groupLesson: string}}
+	 * @type {{faculty: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, specialty: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, course: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, group: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, groupLesson: string}}
 	 */
-	static typeSelectDataEnum = {
-		faculty: "Faculty",
-		specialty: "Specialty",
-		course: "Course",
-		group: "Group",
+	typeSelectData = {
+		faculty: {
+			id: 1,
+			label: 'Факультет',
+			data: getFaculty(),
+			nameIdParameter: 'facultyId',
+			onSelect: this.selectNextData('facultyId')
+		},
+		specialty: {
+			id: 2,
+			label: 'Специальность',
+			data: getSpeciality(),
+			nameIdParameter: 'specialtyId',
+			onSelect: this.selectNextData('specialtyId')
+		},
+		course: {
+			id: 3,
+			label: 'Курс',
+			data: getCourse(),
+			nameIdParameter: 'specialtyId',
+			onSelect: this.selectNextData('specialtyId')
+		},
+		group: {
+			id: 4,
+			label: 'Группы',
+			data: getGroup(),
+			nameIdParameter: 'specialtyId',
+			onSelect: this.selectNextData('specialtyId')
+		},
 		groupLesson: "GroupLesson",
 	};
 
-	state = {
-		currentSelect: SelectDataManager.typeSelectDataEnum.faculty
-	};
-
-	searchJSON = '';
-
 	render() {
-		let searchJSON = SelectDataManager.searchToJSON(this.props.location.search);
-		let typeSelectData = SelectDataManager.defineTypeSelectData(searchJSON);
-		if(!typeSelectData){
+		let selectData = this.defineDataBySearchParams();
+		if (!selectData) {
 			return <Error errorText={"Неправильно переданы параметры!"}/>
 		}
-		let selectData = this.takeSelectDataByType(typeSelectData);
 		return (
 			<ButtonGroup history={this.props.history}
 						 name={selectData.label}
@@ -39,84 +55,57 @@ export default class SelectDataManager extends Component {
 		);
 	}
 
-	/**
-	 * Convert search parameters in JSON
-	 * @param search
-	 * @returns {{facultyId: string, specialtyId: string, courseId: string, groupId: string, groupLessonId: string}}
-	 */
-	static searchToJSON(search) {
-		search = SelectDataManager.deleteQuestionMark(search);
-
-		return JSON.parse(`{"${decodeURI(search)
-			.replace(/"/g, '\\"')
-			.replace(/&/g, '","')
-			.replace(/=/g, '":"') }"}`);
-	};
 
 	/**
-	 * Delete question mark
-	 * @param search
-	 * @returns {*}
+	 * Define type select data by search parameters
+	 * @returns {* || null} null if failed define.
 	 */
-	static deleteQuestionMark(search) {
-		if (search[0] === '?') {
-			search = search.slice(1);
-		}
-		return search;
-	}
+	defineDataBySearchParams() {
+		let searchParameter = this.getAllSearchParameter();
+		let countParameters = Array.from(searchParameter).length;
 
-	/**
-	 * Define type select data by search parameters.
-	 * @param searchJSON {{facultyId: string, specialtyId: string, courseId: string, groupId: string, groupLessonId: string}}
-	 * @returns {string || null} null if failed define.
-	 */
-	static defineTypeSelectData(searchJSON) {
-		let countParameters = Object.keys(searchJSON).length;
-
-		if(countParameters === 0){
-			return SelectDataManager.typeSelectDataEnum.faculty;
+		if (countParameters === 0) {
+			return this.typeSelectData.faculty;
 		}
 
-		if(countParameters === 1 && searchJSON.facultyId){
-			return SelectDataManager.typeSelectDataEnum.specialty;
+		const facultyIdValue = searchParameter.get(this.typeSelectData.faculty.nameIdParameter);
+		if (countParameters === 1 && facultyIdValue) {
+			return this.typeSelectData.specialty;
+		}
+		const specialtyIdValue = searchParameter.get(this.typeSelectData.specialty.nameIdParameter);
+		if (countParameters === 2 && facultyIdValue && specialtyIdValue) {
+			return this.typeSelectData.course;
+		}
+		const courseIdValue = searchParameter.get(this.typeSelectData.course.nameIdParameter);
+		if (countParameters === 3 && facultyIdValue && specialtyIdValue && courseIdValue) {
+			return this.typeSelectData.group;
 		}
 		return null;
 	}
 
-	takeSelectDataByType(typeSelectData) {
-		switch (typeSelectData){
-			case SelectDataManager.typeSelectDataEnum.faculty:
-				return {label: 'Факультет', data:getFaculty(),  onSelect: this.onSelectFaculty};
-			case SelectDataManager.typeSelectDataEnum.specialty:
-				return {label: 'Специальность', data:getSpeciality(),  onSelect: this.onSelectSpecialty};
-		}
-	}
 
-	getSearchParameter = (name) =>{
+	getSearchParameter = (name) => {
 		const queryParams = new URLSearchParams(this.props.location.search);
 		return queryParams.get(name);
 	};
 
-	onSelectFaculty = (facultyId) => {
-		let search = encodeURIComponent(JSON.stringify({
-			facultyId: facultyId
-		}));
-		debugger;
-		this.props.history.push({
-			search: '?' + search
-		})
+	/**
+	 *
+	 * @returns {URLSearchParams}
+	 */
+	getAllSearchParameter = () => {
+		return new URLSearchParams(this.props.location.search);
 	};
 
-	onSelectSpecialty = (specialtyId) => {
-		let search = encodeURIComponent(JSON.stringify({
-			facultyId: this.searchJSON.facultyId,
-			specialtyId: specialtyId
-		}));
-		debugger;
-		this.props.history.push({
-			search: '?' + search
-		})
-	};
+	selectNextData (idParameterName){
+		return (idParameterValue) => {
+			let urlSearchParams = this.getAllSearchParameter();
+			urlSearchParams.append(idParameterName, idParameterValue);
+			this.props.history.push({
+				search: '?' + urlSearchParams.toString()
+			})
+		}
+	}
 
 }
 
@@ -154,5 +143,13 @@ function getCourse() {
 		{name: "Курс 1", key: 1},
 		{name: "Курс 2", key: 2},
 		{name: "Курс 3", key: 3}
+	];
+}
+
+function getGroup() {
+	return [
+		{name: "Группа 1", key: 1},
+		{name: "Группа 2", key: 2},
+		{name: "Группа 3", key: 3}
 	];
 }

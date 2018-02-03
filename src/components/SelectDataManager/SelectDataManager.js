@@ -7,7 +7,7 @@ import ButtonGroup from "../ButtonGroup/ButtonGroup";
  */
 export default class SelectDataManager extends Component {
     /**
-     * Data types which can display.
+     * Data's types which can display ButtonGroup.
      * @type {{faculty: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, specialty: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, course: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, group: {id: number, label: string, data: *, nameIdParameter: string, onSelect: *}, groupLesson: string}}
      */
     typeSelectData = {
@@ -55,33 +55,65 @@ export default class SelectDataManager extends Component {
         );
     }
 
+    /**
+     * Used for definition any parameter necessary for display ButtonGroup's data.
+     * @type {*[]}
+     */
+    structureParametersForData = [
+        {
+            dataType: this.typeSelectData.faculty,
+            necessaryParameter: []
+        },
+        {
+            dataType: this.typeSelectData.specialty,
+            necessaryParameter:
+                [
+                    this.typeSelectData.faculty.nameIdParameter
+                ]
+        },
+        {
+            dataType: this.typeSelectData.course,
+            necessaryParameter:
+                [
+                    this.typeSelectData.faculty.nameIdParameter,
+                    this.typeSelectData.specialty.nameIdParameter
+                ]
+        },
+        {
+            dataType: this.typeSelectData.group,
+            necessaryParameter:
+                [
+                    this.typeSelectData.faculty.nameIdParameter,
+                    this.typeSelectData.specialty.nameIdParameter,
+                    this.typeSelectData.course.nameIdParameter
+                ]
+        }
+    ];
 
     /**
      * Define type select data by search parameters
      * @returns {* || null} null if failed define.
      */
-    defineDataBySearchParams() {
+    defineDataBySearchParams = () => {
         let searchParameter = this.getAllSearchParameter();
         let countParameters = Array.from(searchParameter).length;
 
-        if (countParameters === 0) {
-            return this.typeSelectData.faculty;
+        let findDataType = this.structureParametersForData
+            .filter(value => value.necessaryParameter.length === countParameters)
+            .find(value => {
+                let resultFind = true;
+                value.necessaryParameter.forEach(necessaryParameter => {
+                    if (!searchParameter.has(necessaryParameter)) {
+                        resultFind = false;
+                    }
+                });
+                return resultFind;
+            });
+        if (findDataType === undefined) {
+            return null;
         }
-
-        const facultyIdValue = searchParameter.get(this.typeSelectData.faculty.nameIdParameter);
-        if (countParameters === 1 && facultyIdValue) {
-            return this.typeSelectData.specialty;
-        }
-        const specialtyIdValue = searchParameter.get(this.typeSelectData.specialty.nameIdParameter);
-        if (countParameters === 2 && facultyIdValue && specialtyIdValue) {
-            return this.typeSelectData.course;
-        }
-        const courseIdValue = searchParameter.get(this.typeSelectData.course.nameIdParameter);
-        if (countParameters === 3 && facultyIdValue && specialtyIdValue && courseIdValue) {
-            return this.typeSelectData.group;
-        }
-        return null;
-    }
+        return findDataType.dataType;
+    };
 
     /**
      *

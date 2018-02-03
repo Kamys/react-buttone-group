@@ -4,7 +4,7 @@ import './index.css';
 import registerServiceWorker from './registerServiceWorker';
 import {Router, Route} from "react-router-dom";
 import createHistory from "history/createBrowserHistory"
-import SelectDataManager from "./components/SelectDataManager";
+import SelectDataManager from "./components/SelectDataManager/SelectDataManager";
 
 const history = createHistory();
 ReactDOM.render(
